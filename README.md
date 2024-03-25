@@ -21,7 +21,7 @@ git clone git@github.com:Simre1/MLPC-2024.git
 Go into the `MLPC-2024` directory and set up the conda environment.
 
 ```bash
-conda -f environment.yml new
+conda env create -f environment.yml 
 conda activate mlpc-2024
 ```
 
