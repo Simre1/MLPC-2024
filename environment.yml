@@ -1,0 +1,8 @@
+name: mlpc-2024
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - jupyter=1.0.0
+  - numpy=1.26.4
+  - python=3.12
