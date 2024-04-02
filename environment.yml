@@ -6,3 +6,5 @@ dependencies:
   - jupyter=1.0.0
   - numpy=1.26.4
   - python=3.12
+  - matplotlib=3.8.3
+  
