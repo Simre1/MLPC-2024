@@ -1,16 +1,19 @@
 import numpy as np
 import random
 import csv
+import pathlib
+
 
 # Opinionated paths for loading the files
-DATASET_DIR = "../../Files/development_numpy/development.npy"
-IDX_TO_FEATURE_NAME_FILE = "../../Files/metadata/idx_to_feature_name.csv"
-DEVELOPMENT_FILE = "../../Files/metadata/development.csv"
+DATASET_DIR = "Files/development_numpy/development.npy"
+IDX_TO_FEATURE_NAME_FILE = "Files/metadata/idx_to_feature_name.csv"
+DEVELOPMENT_FILE = "Files/metadata/development.csv"
 
 # Cached feature indices and labels for easy access
 CACHED_FEATURE_INDICES = None
 CACHED_LABELS = None
 CACHED_DATA = None
+PROJECT_PATH = pathlib.Path(__file__).parent.parent.resolve()
 
 def data():
     """
@@ -24,7 +27,8 @@ def data():
     if CACHED_DATA is not None:
         return CACHED_DATA
 
-    CACHED_DATA = np.load(DATASET_DIR)
+
+    CACHED_DATA = np.load(PROJECT_PATH / DATASET_DIR)
     return CACHED_DATA
 
 def features_indices():
@@ -39,7 +43,7 @@ def features_indices():
     if CACHED_FEATURE_INDICES is not None:
         return CACHED_FEATURE_INDICES
 
-    csv_file = IDX_TO_FEATURE_NAME_FILE
+    csv_file = PROJECT_PATH / IDX_TO_FEATURE_NAME_FILE
     feature_name_idx_dict = {}
     with open(csv_file, newline='', encoding='utf8') as csvfile:
         csv_reader = csv.reader(csvfile)
@@ -97,6 +101,22 @@ def replace_special_characters(word):
     word = word.replace('ö', 'oe').replace('ä', 'ae').replace('ü', 'ue').replace('ß', 'ss')
     return word
 
+def labels_array():
+    csv_file = PROJECT_PATH / DEVELOPMENT_FILE
+    labels_list = []
+
+    with open(csv_file, newline='', encoding='utf8') as csvfile:  # Specify UTF-8 encoding
+        csv_reader = csv.DictReader(csvfile)
+        csv_reader.line_num
+        for row in csv_reader:
+            word = row['word'].lower()
+            # file_index = int(row['id'])
+            # filename_parts = row['filename'].split('/')
+            # filename = '/'.join(filename_parts[-2:])
+            labels_list.append(word)
+    
+    return np.array(labels_list)
+
 def labels():
     """
     Retrieves the labels from the CSV file
@@ -109,7 +129,7 @@ def labels():
     if CACHED_LABELS is not None:
         return CACHED_LABELS
 
-    csv_file = DEVELOPMENT_FILE
+    csv_file = PROJECT_PATH / DEVELOPMENT_FILE
     class_to_idx_list_dict = {}
     with open(csv_file, newline='', encoding='utf8') as csvfile:  # Specify UTF-8 encoding
         csv_reader = csv.DictReader(csvfile)
