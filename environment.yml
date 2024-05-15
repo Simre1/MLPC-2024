@@ -8,4 +8,7 @@ dependencies:
   - python=3.12
   - matplotlib=3.8.3
   - scikit-learn=1.4.2
+  - scikit-optimize=0.10.1
+  - torchmetrics=1.4.0
+  - mlxtend=0.23.1 
   
