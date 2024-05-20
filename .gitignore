@@ -162,3 +162,5 @@ cython_debug/
 
 # Data sets
 "/Files"
+Files/development_numpy/development.npy
+Files/metadata/development.csv
