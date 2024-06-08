@@ -68,7 +68,7 @@ def train_model_with_lr(lr, optimizer_class, train_dataloader, test_dataloader, 
     train_time_start_model = timer()
 
     delta = 1e-2
-    patience = 1
+    patience = 5
     best_test_loss = float('inf')
     best_epoch = 0
     counter = 0
