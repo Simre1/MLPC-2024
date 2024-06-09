@@ -5,6 +5,8 @@ sys.path.append('../../Files')  # Update this path according to the location of 
 import os
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 from utils.plot_utils import display_predictions_heatmap_with_timestamps, \
     display_binary_predictions_heatmap_with_timestamps, plot_predictions_heatmap
@@ -45,6 +47,22 @@ def sliding_window_prediction(model, input_data, window_size, stride, threshold)
     return all_predictions, threshold_predictions
 
 
+def plot_probabilities_over_time(class_probabilities, class_names, file_path):
+    """
+    Plot the class probabilities over time.
+    """
+    plt.figure(figsize=(15, 7))
+    for class_idx, probabilities in enumerate(class_probabilities):
+        timestamps = [prob[0] for prob in probabilities]
+        values = [prob[1] for prob in probabilities]
+        plt.plot(timestamps, values, label=class_names[class_idx])
+    plt.xlabel('Time Step')
+    plt.ylabel('Probability')
+    plt.title(f'Class Probabilities Over Time for {os.path.basename(file_path)}')
+    plt.legend(loc='upper right')
+    plt.show()
+
+
 def main():
     """
     Main function to perform audio classification using a CNN model and display the results.
@@ -78,11 +96,16 @@ def main():
 
         # Perform sliding window prediction
         all_predictions, threshold_predictions = sliding_window_prediction(
-            model, dataset_audio_tensor, window_size=window_size, stride=stride, threshold=0.60
+            model, dataset_audio_tensor, window_size=window_size, stride=stride, threshold=0.30  # Adjusted threshold
         )
 
+        # Print some predictions for verification
+        print("Sample Predictions:")
+        for i in range(10):  # Print the first 10 predictions
+            print(all_predictions[i])
+
         # Process predictions to get detected peaks
-        detected_peaks = process_predictions(all_predictions, sample_rate, stride)
+        detected_peaks = process_predictions(all_predictions, sample_rate, stride, height=0.3, distance=5, smoothing_window=10)  # Adjusted parameters
 
         # Convert class indices to names
         detected_peaks_named = {classes.REVERSE_CLASSES[class_idx]: peaks for class_idx, peaks in detected_peaks.items()}
@@ -96,6 +119,14 @@ def main():
         timestamps = [pred[0] for pred in all_predictions]
         prob_arrays = [pred[1] for pred in all_predictions]
         all_predictions_array = np.array(prob_arrays)
+
+        # Plot probabilities over time
+        class_probabilities = [[] for _ in range(len(classes.CLASSES))]
+        for timestamp, probs in all_predictions:
+            for class_idx in range(len(probs[0])):
+                class_probabilities[class_idx].append((timestamp, probs[0][class_idx]))
+
+        plot_probabilities_over_time(class_probabilities, list(classes.CLASSES.keys()), file_path)
 
         # Display predictions for the current file
         #display_predictions_heatmap_with_timestamps(all_predictions_array, list(classes.CLASSES.keys()), window_size=window_size, stride=stride)
