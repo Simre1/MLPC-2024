@@ -1,6 +1,7 @@
 # src/utils/data_utils.py
 
 import sys
+import os
 sys.path.append('../libs')  # Update this path according to the location of your 'dataset' module
 import dataset
 import classes
@@ -70,3 +71,14 @@ def oversample_data(train_data, words_to_oversample):
     oversampled_data = oversampled_data.sample(frac=1, random_state=42).reset_index(drop=True)
 
     return oversampled_data
+
+# Load scene files and return them as a list of np arrays
+# Limit the amount of files with the max_files or leave it to load all scenes 
+def load_scenes_melspect(max_files=0):
+    directory = '../Files/development_scenes'
+    extension = ".npy"
+    file_paths = [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith(extension)]
+    if max_files > 0:
+        file_paths = file_paths[0:max_files]
+    loaded_scenes = [(os.path.splitext(os.path.basename(file_path))[0], np.load(file_path)[12:76, :]) for file_path in file_paths]
+    return loaded_scenes

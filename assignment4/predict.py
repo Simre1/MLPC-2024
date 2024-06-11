@@ -1,7 +1,6 @@
 # src/predict.py
 
 import sys
-sys.path.append('../../libs')  # Update this path according to the location of your 'dataset' module
 sys.path.append('../../Files')  # Update this path according to the location of your 'dataset' module
 import os
 import torch
@@ -10,16 +9,11 @@ import numpy as np
 from utils.plot_utils import display_predictions_heatmap_with_timestamps, \
     display_binary_predictions_heatmap_with_timestamps, plot_predictions_heatmap
 
-import classes
+import utils.classes as classes
+
+from utils.data_utils import load_scenes_melspect
+
 from models.classifier import AudioClassifierCNN
-
-
-def get_file_paths(directory, extension=".npy"):
-    """
-    Get all file paths with a specific extension in a directory.
-    """
-    return [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith(extension)]
-
 
 def sliding_window_prediction(model, input_data, window_size, stride, threshold):
     """
@@ -49,19 +43,12 @@ def main():
     """
     Main function to perform audio classification using a CNN model and display the results.
     """
-    # Directory containing the new .npy files
-    data_directory = '../../Files/scence_analysis'
-
     # Define the model file path
-    model_file_path = r"saved_models\model_20240608_144913\model_lr_0.001.pth"
+    model_file_path = r"saved_models/model_20240608_141753/model_lr_0.01.pth"
 
-    # Get file paths
-    file_paths = get_file_paths(data_directory)
-    print("Collected new file paths:", file_paths)
-
-    # Load and preprocess the dataset
-    dataset_audio = np.load(file_paths[1])[:, 12:76, :]
-    print(f"Dataset shape: {dataset_audio.shape}")
+    # Load the scene data
+    dataset_audio = load_scenes_melspect(max_files=1)
+    print(f"Dataset shape: {dataset_audio[0].shape}")
     dataset_audio_tensor = torch.tensor(dataset_audio, dtype=torch.float32)
 
     # Load the model

@@ -3,7 +3,6 @@
 import os
 import sys
 from datetime import datetime
-sys.path.append('../../libs')  # Update this path according to the location of your 'dataset' module
 
 import torch
 import torch.nn as nn
@@ -19,12 +18,10 @@ from utils.model_utils import train_model_with_lr, make_predictions_with_all_mod
 from utils.eval_utils import accuracy_fn
 from utils.plot_utils import plot_confusion_matrix
 from models.classifier import AudioClassifierCNN
-
-import classes
-
+import utils.classes as classes
 
 def main():
-    DEVELOPMENT_FILE = "../../Files/metadata/development.csv"
+    DEVELOPMENT_FILE = "../Files/metadata/development.csv"
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
 

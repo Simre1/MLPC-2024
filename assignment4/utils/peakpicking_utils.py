@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.signal import find_peaks
-
+import utils.classes as classes
+import torch
 
 def smooth_probabilities(probabilities, window_size=5):
     smoothed_probs = []
@@ -24,9 +25,9 @@ def convert_to_seconds(timestamps, sample_rate, stride):
     return [timestamp * stride / sample_rate for timestamp in timestamps]
 
 
-def process_predictions(all_predictions, sample_rate, stride, height=0.7, distance=5):
+def pick_peaks(all_predictions, sample_rate, stride, height=0.7, distance=5):
     # Extract timestamps and probabilities for each class
-    num_classes = len(all_predictions[0][1][0])
+    num_classes = len(classes.CLASSES)
     class_probabilities = [[] for _ in range(num_classes)]
 
     for timestamp, probs in all_predictions:
@@ -36,6 +37,8 @@ def process_predictions(all_predictions, sample_rate, stride, height=0.7, distan
     # Apply smoothing and adaptive peak picking for each class
     detected_peaks = {}
     for class_idx, probabilities in enumerate(class_probabilities):
+        if classes.class_to_label(class_idx) == "uninteresting":
+            continue
         smoothed_probs = smooth_probabilities(probabilities)
         peaks = adaptive_peak_picking(smoothed_probs, height=height, distance=distance)
         peak_timestamps = [probabilities[i][0] for i in peaks]
@@ -43,3 +46,28 @@ def process_predictions(all_predictions, sample_rate, stride, height=0.7, distan
         detected_peaks[class_idx] = peak_timestamps_in_seconds
 
     return detected_peaks
+
+def sliding_window_prediction(model, input_data, window_size, stride, threshold):
+    """
+    Perform sliding window prediction using a given model.
+    """
+    num_windows = ((input_data.shape[2] - window_size) // stride) + 1
+    all_predictions = []
+    threshold_predictions = []
+
+    for i in range(num_windows):
+        start = i * stride
+        end = start + window_size
+        window_data = input_data[:, :, start:end]
+
+        y_logit = model(window_data)
+        y_pred = torch.softmax(y_logit, dim=1)
+
+        timestamp = (start + (end - start) / 2)  # Midpoint of the window as the timestamp
+        all_predictions.append((timestamp, y_pred.cpu().detach().numpy()))
+
+        if torch.max(y_pred) >= threshold:
+            threshold_predictions.append((start, end, torch.argmax(y_pred)))
+
+    return all_predictions, threshold_predictions
+
