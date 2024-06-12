@@ -47,7 +47,7 @@ def main():
     loss_fn = nn.CrossEntropyLoss()
     optimizer = optim.Adam
 
-    learning_rates = [1e-1, 1e-2]
+    learning_rates = [1e-1, 1e-2, 1e-3]
     results = {}
     os.makedirs('saved_models', exist_ok=True)
 

@@ -14,7 +14,7 @@ import dataset
 def main():
 
     # Define the model file path
-    model_file_path = r"saved_models/model_20240608_141753/model_lr_0.01.pth"
+    model_file_path = r"saved_models/model_20240612_115643/model_lr_0.001.pth"
 
     # Load the model
     model = AudioClassifierCNN(len(classes.CLASSES))
@@ -22,12 +22,11 @@ def main():
     model.eval()  # Set the model to evaluation mode
 
     # Load the scene data
-    scenes_data = load_scenes_melspect(max_files=3)
+    scenes_data = load_scenes_melspect()
     
     # Parameters
-    sample_rate = 16000  # Example sample rate
-    window_size = 44
-    stride = 11
+    window_size = 44 # Each window has 1.1 seconds
+    stride = 11 # Advance by 1/4 of a window
 
     scene_commands = {}
 
@@ -40,7 +39,7 @@ def main():
         )
 
         # Pick prediction peaks
-        detected_peaks = pick_peaks(all_predictions, sample_rate, stride, height=0.3, distance=5)  
+        detected_peaks = pick_peaks(all_predictions, height=0.1, distance=5)  
 
         # Convert class indices to names
         detected_peaks_named = {classes.REVERSE_CLASSES[class_idx]: peaks for class_idx, peaks in detected_peaks.items()}
@@ -50,7 +49,7 @@ def main():
     true_scene_commands = dataset.speech_command_labels()
 
     total_cost = 0
-
+   
     for scene_name, predicted_commands in scene_commands.items():
         total_cost += scene_cost(predicted_commands, true_scene_commands[scene_name])
 

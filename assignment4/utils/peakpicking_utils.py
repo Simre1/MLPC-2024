@@ -18,14 +18,14 @@ def adaptive_peak_picking(smoothed_probs, height=None, distance=1):
     return peaks
 
 
-def convert_to_seconds(timestamps, sample_rate, stride):
+def convert_to_seconds(timestamps):
     """
     Convert time steps to seconds based on sample rate and stride.
     """
-    return [timestamp * stride / sample_rate for timestamp in timestamps]
+    return [timestamp * 0.025 for timestamp in timestamps]
 
 
-def pick_peaks(all_predictions, sample_rate, stride, height=0.7, distance=5):
+def pick_peaks(all_predictions, height=0.7, distance=5):
     # Extract timestamps and probabilities for each class
     num_classes = len(classes.CLASSES)
     class_probabilities = [[] for _ in range(num_classes)]
@@ -42,7 +42,7 @@ def pick_peaks(all_predictions, sample_rate, stride, height=0.7, distance=5):
         smoothed_probs = smooth_probabilities(probabilities)
         peaks = adaptive_peak_picking(smoothed_probs, height=height, distance=distance)
         peak_timestamps = [probabilities[i][0] for i in peaks]
-        peak_timestamps_in_seconds = convert_to_seconds(peak_timestamps, sample_rate, stride)
+        peak_timestamps_in_seconds = convert_to_seconds(peak_timestamps)
         detected_peaks[class_idx] = peak_timestamps_in_seconds
 
     return detected_peaks

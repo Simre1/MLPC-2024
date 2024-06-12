@@ -29,7 +29,7 @@ def find_speech_commands(scene):
     for detection, time in detections:
 
         if detection in COMMAND_ACTIONS and latest_object != None and latest_time > time - 1.5:
-            commands.append((latest_object, detection, start, end))
+            commands.append((latest_object, detection, latest_time, time))
         
         latest_object = detection
         latest_time = time
@@ -57,10 +57,13 @@ def scene_cost(predicted_commands, true_commands):
             p += 1
             continue
 
-        true_command, true_start, true_end = true_commands[t]
+        true_object, true_action, true_start, true_end = true_commands[t]
         predicted_object, predicted_action, predicted_start, predicted_end = predicted_commands[p]
 
-        if abs((true_start + true_end) - (predicted_start + predicted_end)) < 2:
+        true_avg_time = (true_start + true_end) / 2
+        predicted_avg_time = (predicted_start + predicted_end) / 2
+       
+        if abs(true_avg_time - predicted_avg_time) < 1.5:
             cost += cost_match_command(true_object, true_action, predicted_object, predicted_action)
             p += 1
             t += 1
