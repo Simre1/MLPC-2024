@@ -24,6 +24,14 @@ import classes
 # GET LIST OF FEATURE FILES
 ####################################################################################################
 
+def get_numeric_prefix(file):
+    match = re.match(r"(\d+)_", file.name)
+    return int(match.group(1)) if match else float('inf')
+
+####################################################################################################
+# GET NUMBER TO SORT BECAUSE PYTHON IS STUPID
+####################################################################################################
+
 def get_feature_files(filepath: str="") -> str:
     """Reads all files.
 
@@ -40,11 +48,14 @@ def get_feature_files(filepath: str="") -> str:
         # print(f"DIR DATA: {dir_data}")
         try:
             data_files = list(dir_data.glob("*.npy"))
+            data_files.sort(key=get_numeric_prefix)
             print(f"Loading {len(data_files)} files from {filepath} successfully!")
+
         except FileNotFoundError as e:
             print(f"Wrong directory: {e}")
 
-    return sorted(data_files)
+    return data_files
+
 
 ####################################################################################################
 # GET FEATURE DICTIONARY
@@ -163,26 +174,29 @@ def slice_data(feature_file, sampling_rate: int=16, frame_size: int=44, hop_size
     return np.array(segments), np.array(segment_labels)
 
 
-
 ####################################################################################################
-# GET LIST OF FEATURE FILES
+# MAIN
 ####################################################################################################
 
 
 def main():
     features_filepath = "../../Files/development_scenes_npy/development_scenes/"
     labels_filepath = "../../Files/metadata/idx_to_feature_name.csv"
+    num = 10
 
     feature_files = get_feature_files(features_filepath)
+    print(f"File {num}: {feature_files[num]}")
     feature_dict = get_feature_dict(labels_filepath)
-    feature_indices = get_features_indices(feature_dict, "melspect", "contrast", "zcr")
+    feature_indices = get_features_indices(feature_dict, "melspect")
 
     #file_2_raw = np.load(feature_files[2])
     #file_2_raw = load_numpy(feature_files, 2)
     #file_2_filtered = file_2_raw[feature_indices, :]
     #print(f"Length Feature Index: {len(feature_indices)}")
+    #for file in feature_files:
+    #    print(file)
 
-    file_2_filtered_data, file_2_filtered_path = load_filterd_data(feature_files, index=0, feature_indices=feature_indices)
+    file_2_filtered_data, file_2_filtered_path = load_filterd_data(feature_files, index=num, feature_indices=feature_indices)
 
     #print(f"SHAPE: {file_2_filtered_data.shape}")
     # for data in raw_data:
@@ -193,7 +207,7 @@ def main():
     sliced_data = slice_data(file_2_filtered)
 
     #print(f"Sliced Data 0: {sliced_data[0]}")
-    #print(f"Sliced Data 1: {sliced_data[1]}")
+    print(f"Sliced Data 1: {sliced_data[1]}")
 
     #for data2 in split_data:
     #    print(data2)
