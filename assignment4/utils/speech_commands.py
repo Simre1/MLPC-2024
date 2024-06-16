@@ -1,4 +1,6 @@
+import logging
 
+VALID_TIME_FRAME = 1.5  # Adjust this value as needed
 
 COMMAND_OBJECTS = set([
     "staubsauger"
@@ -28,11 +30,16 @@ def find_speech_commands(scene):
 
     for detection, time in detections:
 
-        if detection in COMMAND_ACTIONS and latest_object != None and latest_time > time - 1.5:
-            commands.append((latest_object, detection, latest_time, time))
-        
-        latest_object = detection
-        latest_time = time
+        if detection in COMMAND_ACTIONS:
+            if latest_object is not None and latest_time is not None and latest_time > time - VALID_TIME_FRAME:
+                commands.append((latest_object, detection, latest_time, time))
+            else:
+                logging.warning(f"Ignored action '{detection}' without preceding object")
+        elif detection in COMMAND_OBJECTS:
+            latest_object = detection
+            latest_time = time
+        else:
+            logging.warning(f"Invalid detection '{detection}' ignored")
 
     return commands
 
@@ -88,7 +95,8 @@ def cost_missing_command(true_command):
 
 def cost_additional_command(predicted_command):
     command_object, _, _, _ = predicted_command
-    
+    logging.debug(f"Checking command object: {command_object}")
+
     if command_object in set(["fernseher", "licht", "radio", "staubsauger"]):
         return 2
 
@@ -98,7 +106,7 @@ def cost_additional_command(predicted_command):
     if command_object in set(["ofen", "alarm"]):
         return 4
 
-    raise Error(f"Invalid command object: {command_object}")
+    raise Exception(f"Invalid command object: {command_object}")
 
 def cost_match_command(true_object, true_action, predicted_object, predicted_action):
     
@@ -109,3 +117,13 @@ def cost_match_command(true_object, true_action, predicted_object, predicted_act
             return 0.1
     else:
         return 1
+
+def validate_and_filter_commands(predicted_commands):
+    valid_commands = []
+    for cmd in predicted_commands:
+        if cmd[0] in COMMAND_OBJECTS:
+            valid_commands.append(cmd)
+        else:
+            logging.error(f"Invalid command object detected: {cmd[0]}")
+    return valid_commands
+
