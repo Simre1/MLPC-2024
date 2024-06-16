@@ -1,0 +1,3 @@
+0.9306843267108168
+0.9306843267108168
+{"pca_components": 15, "scaler_q": 5, "svm_cost": 10, "svm_kernel": "rbf"}

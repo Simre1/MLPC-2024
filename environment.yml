@@ -11,4 +11,5 @@ dependencies:
   - scikit-optimize=0.10.1
   - torchmetrics=1.4.0
   - mlxtend=0.23.1 
-  
+  - tqdm=4.66.4
+  - seaborn=0.13.2
