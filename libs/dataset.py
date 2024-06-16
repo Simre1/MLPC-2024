@@ -150,20 +150,3 @@ def print_label_lengths():
     print("")
     for class_label, sample_ids in labels().items():
         print(f"{class_label}: {len(sample_ids)}")
-
-def speech_command_labels():
-    csv_file = PROJECT_PATH / "Files/development_scene_annotations.csv"
-
-    commands_for_name = {}
-    with open(csv_file, newline='', encoding='utf8') as csvfile:  # Specify UTF-8 encoding
-        csv_reader = csv.DictReader(csvfile)
-        for row in csv_reader:
-            name = row['filename']
-            [object, action] = row['command'].lower().split(" ")
-            start = float(row['start'])
-            end = float(row['end'])
-            commands_for_name.setdefault(name, []).append(
-                (object, action, start, end)
-            )
-    
-    return commands_for_name
