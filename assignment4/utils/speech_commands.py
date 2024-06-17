@@ -1,9 +1,7 @@
-import logging
-
 VALID_TIME_FRAME = 1.5  # Adjust this value as needed
 
 COMMAND_OBJECTS = set([
-    "staubsauger"
+    "staubsauger",
     "alarm",
     "lüftung",
     "ofen",
@@ -33,18 +31,13 @@ def find_speech_commands(scene):
         if detection in COMMAND_ACTIONS:
             if latest_object is not None and latest_time is not None and latest_time > time - VALID_TIME_FRAME:
                 commands.append((latest_object, detection, latest_time, time))
-            else:
-                logging.warning(f"Ignored action '{detection}' without preceding object")
         elif detection in COMMAND_OBJECTS:
             latest_object = detection
             latest_time = time
-        else:
-            logging.warning(f"Invalid detection '{detection}' ignored")
 
     return commands
 
 def scene_cost(predicted_commands, true_commands):
-   
     cost = 0
 
     p = 0
@@ -52,7 +45,7 @@ def scene_cost(predicted_commands, true_commands):
 
     while p < len(predicted_commands) or t < len(true_commands):
 
-        # Command not deteced
+        # Command not detected
         if p >= len(predicted_commands):
             cost += cost_missing_command(true_commands[t])
             t += 1
@@ -69,7 +62,7 @@ def scene_cost(predicted_commands, true_commands):
 
         true_avg_time = (true_start + true_end) / 2
         predicted_avg_time = (predicted_start + predicted_end) / 2
-       
+
         if abs(true_avg_time - predicted_avg_time) < 1.5:
             cost += cost_match_command(true_object, true_action, predicted_object, predicted_action)
             p += 1
@@ -78,12 +71,12 @@ def scene_cost(predicted_commands, true_commands):
 
         if true_start + true_end > predicted_start + predicted_end:
             cost += cost_additional_command(predicted_commands[p])
-            p +=1
+            p += 1
             continue
 
         if true_start + true_end < predicted_start + predicted_end:
             cost += cost_missing_command(true_commands[t])
-            t +=1
+            t += 1
             continue
 
         raise Error("Cost matching failed")
@@ -95,7 +88,6 @@ def cost_missing_command(true_command):
 
 def cost_additional_command(predicted_command):
     command_object, _, _, _ = predicted_command
-    logging.debug(f"Checking command object: {command_object}")
 
     if command_object in set(["fernseher", "licht", "radio", "staubsauger"]):
         return 2
@@ -109,7 +101,6 @@ def cost_additional_command(predicted_command):
     raise Exception(f"Invalid command object: {command_object}")
 
 def cost_match_command(true_object, true_action, predicted_object, predicted_action):
-    
     if true_object == predicted_object:
         if true_action == predicted_action:
             return -1
@@ -123,7 +114,4 @@ def validate_and_filter_commands(predicted_commands):
     for cmd in predicted_commands:
         if cmd[0] in COMMAND_OBJECTS:
             valid_commands.append(cmd)
-        else:
-            logging.error(f"Invalid command object detected: {cmd[0]}")
     return valid_commands
-
