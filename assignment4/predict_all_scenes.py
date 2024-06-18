@@ -3,13 +3,12 @@ import torch
 import sys 
 sys.path.append('../libs')  # Update this path according to the location of your 'dataset' module
 import utils.classes as classes
-from utils.peakpicking_utils import pick_peaks, sliding_window_prediction  # Import the peak picking functions
+from utils.peakpicking_utils import pick_peaks, pick_peaks_threshold, sliding_window_prediction  # Import the peak picking functions
 from models.classifier import AudioClassifierCNN
 from utils.data_utils import load_scenes_melspect
 from utils.speech_commands import find_speech_commands, scene_cost
 
 import dataset
-
 
 def main():
 
@@ -26,7 +25,20 @@ def main():
     
     # Parameters
     window_size = 44 # Each window has 1.1 seconds
-    stride = 11 # Advance by 1/4 of a window
+    stride = 11 # Advance by 1/4 of a windowS
+    thresholds = {
+        "uninteresting": 0.1,
+        "staubsauger": 0.2,
+        "alarm": 0.9,
+        "lüftung": 0.2,
+        "ofen": 0.2,
+        "heizung": 0.2,
+        "fernseher": 0.2,
+        "licht": 0.2,
+        "aus": 0.2,
+        "an": 0.2,
+        "radio": 0.2,
+    }
 
     scene_commands = {}
 
@@ -39,7 +51,8 @@ def main():
         )
 
         # Pick prediction peaks
-        detected_peaks = pick_peaks(all_predictions, height=0.1, distance=5)  
+        detected_peaks = pick_peaks(all_predictions, height=0.1, distance=5)
+        # detected_peaks = pick_peaks_threshold(all_predictions, thresholds=thresholds, distance=5)
 
         # Convert class indices to names
         detected_peaks_named = {classes.REVERSE_CLASSES[class_idx]: peaks for class_idx, peaks in detected_peaks.items()}
