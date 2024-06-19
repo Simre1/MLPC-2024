@@ -1,22 +1,21 @@
 import numpy as np
 import torch
 import sys 
+import csv
 sys.path.append('../libs')  # Update this path according to the location of your 'dataset' module
 import utils.classes as classes
 from utils.peakpicking_utils import pick_peaks, pick_peaks, sliding_window_prediction  # Import the peak picking functions
 from models.classifier import AudioClassifierCNN
-from utils.data_utils import load_scenes_melspect_splitted 
+from utils.data_utils import load_scenes_melspect
 from utils.speech_commands import find_speech_commands, scene_cost
 
 import dataset
 
 def main():
-   
-    scene_data = load_scenes_melspect("../Files/test_scenes")
+    scenes_data = load_scenes_melspect(directory="../Files/test_scenes")
     model_file_path = r"saved_models/model_20240616_143956/model_lr_0.001.pth"
 
     thresholds = {
-        "uninteresting": 0.3,
         "staubsauger": 0.3,
         "alarm": 0.3,
         "lüftung": 0.3,
@@ -29,7 +28,6 @@ def main():
         "radio": 0.3,
     }
     distances = {
-        "uninteresting": 5,
         "staubsauger": 5,
         "alarm": 5,
         "lüftung": 5,
@@ -73,7 +71,7 @@ def main():
         
     with open('results.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(["filename", "command","timestamp"]])
+        writer.writerow(["filename", "command","timestamp"])
 
         for scene_name, predicted_commands in scene_commands.items():
             for predicted_object, predicted_action, predicted_start, predicted_end in predicted_commands:
