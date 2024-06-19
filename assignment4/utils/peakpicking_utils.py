@@ -25,7 +25,7 @@ def convert_to_seconds(timestamps):
     return [timestamp * 0.025 for timestamp in timestamps]
 
 
-def pick_peaks(all_predictions, height=0.7, distance=5):
+def pick_peaks(all_predictions, thresholds, distances):
     # Extract timestamps and probabilities for each class
     num_classes = len(classes.CLASSES)
     class_probabilities = [[] for _ in range(num_classes)]
@@ -40,42 +40,19 @@ def pick_peaks(all_predictions, height=0.7, distance=5):
         if classes.class_to_label(class_idx) == "uninteresting":
             continue
         smoothed_probs = smooth_probabilities(probabilities)
-        peaks = adaptive_peak_picking(smoothed_probs, height=height, distance=distance)
+        peaks = adaptive_peak_picking(smoothed_probs, height=thresholds[classes.class_to_label(class_idx)], distance=distances[classes.class_to_label(class_idx)])
         peak_timestamps = [probabilities[i][0] for i in peaks]
         peak_timestamps_in_seconds = convert_to_seconds(peak_timestamps)
         detected_peaks[class_idx] = peak_timestamps_in_seconds
 
     return detected_peaks
 
-def pick_peaks_threshold(all_predictions, thresholds, distance=5):
-    # Extract timestamps and probabilities for each class
-    num_classes = len(classes.CLASSES)
-    class_probabilities = [[] for _ in range(num_classes)]
-
-    for timestamp, probs in all_predictions:
-        for class_idx in range(len(probs[0])):
-            class_probabilities[class_idx].append((timestamp, probs[0][class_idx]))
-
-    # Apply smoothing and adaptive peak picking for each class
-    detected_peaks = {}
-    for class_idx, probabilities in enumerate(class_probabilities):
-        if classes.class_to_label(class_idx) == "uninteresting":
-            continue
-        smoothed_probs = smooth_probabilities(probabilities)
-        peaks = adaptive_peak_picking(smoothed_probs, height=thresholds[classes.class_to_label(class_idx)], distance=distance)
-        peak_timestamps = [probabilities[i][0] for i in peaks]
-        peak_timestamps_in_seconds = convert_to_seconds(peak_timestamps)
-        detected_peaks[class_idx] = peak_timestamps_in_seconds
-
-    return detected_peaks
-
-def sliding_window_prediction(model, input_data, window_size, stride, threshold):
+def sliding_window_prediction(model, input_data, window_size, stride):
     """
     Perform sliding window prediction using a given model.
     """
     num_windows = ((input_data.shape[2] - window_size) // stride) + 1
     all_predictions = []
-    threshold_predictions = []
 
     for i in range(num_windows):
         start = i * stride
@@ -88,8 +65,5 @@ def sliding_window_prediction(model, input_data, window_size, stride, threshold)
         timestamp = (start + (end - start) / 2)  # Midpoint of the window as the timestamp
         all_predictions.append((timestamp, y_pred.cpu().detach().numpy()))
 
-        if torch.max(y_pred) >= threshold:
-            threshold_predictions.append((start, end, torch.argmax(y_pred)))
-
-    return all_predictions, threshold_predictions
+    return all_predictions
 

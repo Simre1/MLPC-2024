@@ -27,11 +27,11 @@ def find_speech_commands(scene):
     latest_object = None
 
     for detection, time in detections:
-
-        if detection in COMMAND_ACTIONS:
-            if latest_object is not None and latest_time is not None and latest_time > time - VALID_TIME_FRAME:
-                commands.append((latest_object, detection, latest_time, time))
-        elif detection in COMMAND_OBJECTS:
+        if detection in COMMAND_ACTIONS and latest_object != None and latest_time > time - VALID_TIME_FRAME:
+            assert latest_object in COMMAND_OBJECTS
+            commands.append((latest_object, detection, latest_time, time))
+            latest_object = None
+        else:
             latest_object = detection
             latest_time = time
 

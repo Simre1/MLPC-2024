@@ -13,3 +13,4 @@ dependencies:
   - mlxtend=0.23.1 
   - tqdm=4.66.4
   - seaborn=0.13.2
+  - bayesian-optimization=1.4.3 
