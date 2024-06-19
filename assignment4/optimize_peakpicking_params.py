@@ -7,7 +7,6 @@ from bayes_opt.util import load_logs
 
 def flatten_params(stride, distances, thresholds):
         return {
-            "t_uninteresting": thresholds["uninteresting"],
             "t_staubsauger": thresholds["staubsauger"],
             "t_alarm": thresholds["alarm"],
             "t_lüftung": thresholds["lüftung"],
@@ -18,7 +17,6 @@ def flatten_params(stride, distances, thresholds):
             "t_radio": thresholds["radio"],
             "t_aus": thresholds["aus"],
             "t_an": thresholds["an"],
-            "d_uninteresting": distances["uninteresting"],
             "d_staubsauger": distances["staubsauger"],
             "d_alarm": distances["alarm"],
             "d_lüftung": distances["lüftung"],
@@ -35,7 +33,6 @@ def flatten_params(stride, distances, thresholds):
 def unflatten_params(args):
 
         thresholds = {
-            "uninteresting": args["t_uninteresting"],
             "staubsauger": args["t_staubsauger"],
             "alarm": args["t_alarm"],
             "lüftung": args["t_lüftung"],
@@ -48,7 +45,6 @@ def unflatten_params(args):
             "radio": args["t_radio"],
         }
         distances = {
-            "uninteresting": int(args["d_uninteresting"]),
             "staubsauger": int(args["d_staubsauger"]),
             "alarm": int(args["d_alarm"]),
             "lüftung": int(args["d_lüftung"]),
@@ -71,7 +67,6 @@ if __name__ == "__main__":
 
     # Unoptimized peak picking values:
     thresholds = {
-        "uninteresting": (0,1),
         "staubsauger": (0,1),
         "alarm": (0,1),
         "lüftung": (0,1),
@@ -85,7 +80,6 @@ if __name__ == "__main__":
     }
 
     distances = {
-        "uninteresting": (3,44),
         "staubsauger": (3,44),
         "alarm": (3,44),
         "lüftung": (3,44),
