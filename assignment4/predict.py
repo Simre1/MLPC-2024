@@ -47,9 +47,9 @@ def main():
     model_file_path = r"saved_models/model_20240608_141753/model_lr_0.01.pth"
 
     # Load the scene data
-    dataset_audio = load_scenes_melspect(max_files=1)
-    print(f"Dataset shape: {dataset_audio[0].shape}")
-    dataset_audio_tensor = torch.tensor(dataset_audio, dtype=torch.float32)
+    scene_name, scene_audio = load_scenes_melspect(max_files=1)[0]
+    print(f"Dataset shape: {scene_audio.shape}")
+    dataset_audio_tensor = torch.tensor([scene_audio], dtype=torch.float32)
 
     # Load the model
     model = AudioClassifierCNN(len(classes.CLASSES))
