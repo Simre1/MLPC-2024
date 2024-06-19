@@ -31,9 +31,11 @@ def find_speech_commands(scene):
             assert latest_object in COMMAND_OBJECTS
             commands.append((latest_object, detection, latest_time, time))
             latest_object = None
-        else:
+        else if detection in COMMAND_OBJECTS:
             latest_object = detection
             latest_time = time
+        else if detection in COMMAND_ACTIONS:
+            latest_object = None
 
     return commands
 
