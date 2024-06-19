@@ -1,5 +1,9 @@
 from predict_all_scenes import predict
+from utils.data_utils import load_scenes_melspect_splitted
 from bayes_opt import BayesianOptimization
+from bayes_opt.logger import JSONLogger
+from bayes_opt.event import Events
+from bayes_opt.util import load_logs
 
 def flatten_params(stride, distances, thresholds):
         return {
@@ -81,23 +85,25 @@ if __name__ == "__main__":
     }
 
     distances = {
-        "uninteresting": (1,88),
-        "staubsauger": (1,88),
-        "alarm": (1,88),
-        "lüftung": (1,88),
-        "ofen": (1,88),
-        "heizung": (1,88),
-        "fernseher": (1,88),
-        "licht": (1,88),
-        "aus": (1,88),
-        "an": (1,88),
-        "radio": (1,88),
+        "uninteresting": (3,44),
+        "staubsauger": (3,44),
+        "alarm": (3,44),
+        "lüftung": (3,44),
+        "ofen": (3,44),
+        "heizung": (3,44),
+        "fernseher": (3,44),
+        "licht": (3,44),
+        "aus": (3,44),
+        "an": (3,44),
+        "radio": (3,44),
     }
-    stride = (1,88) # Advance by 1/4 of a window
+    stride = (1,44) # Advance by 1/4 of a window
+
+    scenes_train, scenes_val, scenes_test = load_scenes_melspect_splitted()
 
     def f(**args):
         stride, distances, thresholds = unflatten_params(args)
-        cost = predict(model_file_path, 10, stride, distances, thresholds)
+        cost = predict(model_file_path, scenes_val , stride, distances, thresholds)
         # Want to maximize negative cost
         return -cost
     
@@ -107,5 +113,11 @@ if __name__ == "__main__":
         random_state=1,
     )
 
-    optimizer.maximize(n_iter=100, init_points=20)
+    # logger = JSONLogger(path="./logs.log")
+    # optimizer.subscribe(Events.OPTIMIZATION_STEP, logger)
+    
+    # Load progress, uncomment if you have up to date logs.log and want to resume optimization
+    # load_logs(optimizer, logs=["./logs.log"]);
+    
+    optimizer.maximize(n_iter=100, init_points=10)
     print(optimizer.max)

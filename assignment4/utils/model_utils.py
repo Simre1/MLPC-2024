@@ -144,7 +144,11 @@ def make_predictions_with_all_models(model_class, model_paths, num_classes, data
                 y_pred = torch.softmax(y_logit, dim=1).argmax(dim=1) # note: perform softmax on the "logits" dimension, not "batch" dimension (in this case we have a batch size of 32, so can perform on dim=1)
                 # Put predictions on CPU for evaluation
                 y_preds.append(y_pred.cpu())
-                y_true.append(y.cpu())
+
+                if y.ndim == 2:
+                    y_true.append(y.cpu().argmax(dim=1))
+                else:
+                    y_true.append(y.cpu())
         
         # Concatenate list of predictions into a tensor
         y_pred_tensor = torch.cat(y_preds)

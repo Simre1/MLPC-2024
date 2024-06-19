@@ -74,8 +74,7 @@ def oversample_data(train_data, words_to_oversample):
 
 # Load scene files and return them as a list of np arrays
 # Limit the amount of files with the max_files or leave it to load all scenes 
-def load_scenes_melspect(max_files=0):
-    directory = '../Files/development_scenes'
+def load_scenes_melspect(max_files=0, directory='../Files/development_scenes'):
     extension = ".npy"
     file_paths = [os.path.join(directory, f) for f in os.listdir(directory) if f.endswith(extension)]
     if max_files > 0:
