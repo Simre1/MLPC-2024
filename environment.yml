@@ -14,3 +14,4 @@ dependencies:
   - tqdm=4.66.4
   - seaborn=0.13.2
   - bayesian-optimization=1.4.3 
+  - librosa=0.10.2.post1
