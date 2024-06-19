@@ -82,3 +82,71 @@ def load_scenes_melspect(max_files=0):
         file_paths = file_paths[0:max_files]
     loaded_scenes = [(os.path.splitext(os.path.basename(file_path))[0], np.load(file_path)[12:76, :]) for file_path in file_paths]
     return loaded_scenes
+
+# Load scenes splitted
+# 829 files in total
+# 50 % train
+# 20 % validation for hyperparameter tuning
+# 30 % test
+def load_scenes_melspect_splitted():
+    all_scenes = load_scenes_melspect()
+
+    n = len(all_scenes)
+
+    q50 = int(n * 50 / 100)    
+    q70 = int(n * 70 / 100)    
+    
+    return all_scenes[0:q50], all_scenes[q50:q70], all_scenes[q70:]
+
+
+def scene_into_train_data(scene_data, scene_labels):
+
+    features, frames = scene_data.shape
+    num_classes = len(classes.CLASSES)
+    
+    window = 44 # 44 * 25 = 1.1 seconds
+    splits = np.arange(window, frames+1, window)
+    
+    splitted_scene = np.array(np.array_split(scene_data, splits, axis=1)[:-1])
+    
+    labels = []
+
+    for frame_index in range(0, splits[-1], window):
+
+        start_time = frame_index * 0.025
+        end_time = (frame_index + window) * 0.025
+
+        # labels = label_to_class("uninteresting") # default
+        logits = np.zeros(num_classes)
+        logits[classes.label_to_class("uninteresting")] = 1.0
+        
+        for command_object, command_action, command_start, command_end in scene_labels:
+            q25 = (command_start * 3 + command_end) / 4 
+            q75 = (command_start + 3 * command_end) / 4 
+            
+            # Assumption is that command object is at around 25% of the speech command and command action at around 75%
+            
+            if start_time < q25 and q25 < end_time:
+                logits[classes.label_to_class("uninteresting")] = 0.0
+                logits[classes.label_to_class(command_object)] = 1.0
+
+            if start_time < q75 and q75 < end_time:
+                logits[classes.label_to_class("uninteresting")] = 0.0
+                logits[classes.label_to_class(command_action)] = 1.0
+
+        labels.append(logits)
+    
+    return (splitted_scene, np.array(labels))
+    
+def classes_to_logits(classes_array):
+    num_classes = len(classes.CLASSES)
+
+    def to_logits(c):
+        logits = np.zeros(num_classes)
+        logits[c] = 1.0
+        return logits
+    
+    return np.array(list(map(to_logits, classes_array)))
+
+    
+    

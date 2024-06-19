@@ -21,7 +21,11 @@ def train_step(model, data_loader, loss_fn, optimizer, accuracy_fn, device):
         # 2. Calculate loss
         loss = loss_fn(y_pred, y)
         train_loss += loss.item()  # Accumulate the loss
-        train_acc += accuracy_fn(y_true=y, y_pred=y_pred.argmax(dim=1))  # Accumulate the accuracy
+        
+        if y.ndim == 2:
+            train_acc += accuracy_fn(y_true=y.argmax(dim=1), y_pred=y_pred.argmax(dim=1))  # Accumulate the accuracy
+        else:
+            train_acc += accuracy_fn(y_true=y, y_pred=y_pred.argmax(dim=1))  # Accumulate the accuracy
 
         # 3. Optimizer zero grad
         optimizer.zero_grad()
@@ -52,7 +56,10 @@ def test_step(data_loader, model, loss_fn, accuracy_fn, device):
             # 2. Calculate loss and accuracy
             loss = loss_fn(test_pred, y)
             test_loss += loss.item()  # Accumulate the loss
-            test_acc += accuracy_fn(y_true=y, y_pred=test_pred.argmax(dim=1))  # Accumulate the accuracy
+            if y.ndim == 2:
+                test_acc += accuracy_fn(y_true=y.argmax(dim=1), y_pred=test_pred.argmax(dim=1))  # Accumulate the accuracy
+            else:
+                test_acc += accuracy_fn(y_true=y, y_pred=test_pred.argmax(dim=1))  # Accumulate the accuracy
 
         # Calculate loss and accuracy per epoch and print out
         test_loss /= len(data_loader)

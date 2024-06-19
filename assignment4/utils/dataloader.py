@@ -8,9 +8,9 @@ def create_dataloaders(X_train, X_test, X_dev, y_train, y_test, y_dev, batch_siz
     X_train_tensor = torch.tensor(X_train, dtype=torch.float32).unsqueeze(dim=1)
     X_test_tensor = torch.tensor(X_test, dtype=torch.float32).unsqueeze(dim=1)
     X_dev_tensor = torch.tensor(X_dev, dtype=torch.float32).unsqueeze(dim=1)
-    y_train_tensor = torch.tensor(y_train, dtype=torch.long)
-    y_test_tensor = torch.tensor(y_test, dtype=torch.long)
-    y_dev_tensor = torch.tensor(y_dev, dtype=torch.long)
+    y_train_tensor = torch.tensor(y_train)
+    y_test_tensor = torch.tensor(y_test)
+    y_dev_tensor = torch.tensor(y_dev)
 
     # Create datasets and dataloaders
     train_dataset = TensorDataset(X_train_tensor, y_train_tensor)

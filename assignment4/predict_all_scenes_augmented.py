@@ -1,5 +1,6 @@
 
 from predict_all_scenes import predict
+from utils.data_utils import load_scenes_melspect_splitted 
 
 if __name__ == "__main__":
     # Augmented path
@@ -34,6 +35,8 @@ if __name__ == "__main__":
     }
     stride = 11 # Advance by 1/4 of a window
 
-    cost_per_scene = predict(model_file_path, 60, stride, distances, thresholds)
+    scenes_train, scenes_val, scenes_test = load_scenes_melspect_splitted()
+
+    cost_per_scene = predict(model_file_path, scenes_test, stride, distances, thresholds)
 
     print(f"Cost per scene: {cost_per_scene}")

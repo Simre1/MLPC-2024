@@ -5,20 +5,18 @@ sys.path.append('../libs')  # Update this path according to the location of your
 import utils.classes as classes
 from utils.peakpicking_utils import pick_peaks, pick_peaks, sliding_window_prediction  # Import the peak picking functions
 from models.classifier import AudioClassifierCNN
-from utils.data_utils import load_scenes_melspect
+from utils.data_utils import load_scenes_melspect_splitted 
 from utils.speech_commands import find_speech_commands, scene_cost
 
 import dataset
 
-def predict(model_file_path, max_files, stride, distances, thresholds):
+def predict(model_file_path, scenes_data, stride, distances, thresholds):
 
     # Load the model
     model = AudioClassifierCNN(len(classes.CLASSES))
     model.load_state_dict(torch.load(model_file_path, map_location=torch.device('cpu')))
     model.eval()  # Set the model to evaluation mode
 
-    # Load the scene data
-    scenes_data = load_scenes_melspect(max_files=10)
     
     # Parameters
     window_size = 44 # Each window has 1.1 seconds
@@ -91,8 +89,11 @@ if __name__ == "__main__":
     stride = 11 # Advance by 1/4 of a window
 
     # Optimized peak picking values:
+
+    # Load the scene data
+    scenes_train, scenes_val, scenes_test = load_scenes_melspect_splitted()
     
-    cost_per_scene = predict(model_file_path, 10, stride, distances, thresholds)
+    cost_per_scene = predict(model_file_path, scenes_test, stride, distances, thresholds)
 
     print(f"Cost per scene: {cost_per_scene}")
     

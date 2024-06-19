@@ -14,6 +14,9 @@ CLASSES = {
 
 REVERSE_CLASSES = {v: k for k, v in CLASSES.items()}
 
+def num_classes():
+    return len(CLASSES)
+
 def label_to_class(label):
     if label in CLASSES:
         return CLASSES[label]
